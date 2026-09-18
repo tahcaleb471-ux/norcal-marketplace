@@ -1,7 +1,45 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { currencies, languages, profiles } from '@/lib/data';
+import { useRouter } from 'next/navigation';
+import { createUser, getCurrentUser, supportedCurrencies, supportedLanguages } from '@/lib/norcal-data';
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    language: 'English',
+    currency: 'USD - US Dollar',
+    country: 'United States',
+    role: 'buyer'
+  });
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (getCurrentUser()) router.push('/dashboard');
+  }, [router]);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      createUser({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        language: form.language,
+        currency: form.currency,
+        country: form.country,
+        role: form.role as 'buyer' | 'seller'
+      });
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to create account');
+    }
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
       <div className="mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-soft">
@@ -28,41 +66,76 @@ export default function SignupPage() {
               <Link href="/login" className="text-sm font-semibold text-green-700">Log in</Link>
             </div>
 
-            <form className="mt-8 space-y-5">
+            <form className="mt-8 space-y-5" onSubmit={submit}>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">First name</label>
-                  <input className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500" placeholder="Maya" />
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Full name</label>
+                  <input
+                    required
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                    placeholder="Maya Lewis"
+                    value={form.name}
+                    onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                  />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">Last name</label>
-                  <input className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500" placeholder="Lewis" />
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Account type</label>
+                  <select
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                    value={form.role}
+                    onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+                  >
+                    <option value="buyer">Buyer</option>
+                    <option value="seller">Seller</option>
+                  </select>
                 </div>
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
-                <input type="email" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500" placeholder="you@example.com" />
+                <input
+                  type="email"
+                  required
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
-                <input type="password" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500" placeholder="••••••••" />
+                <input
+                  type="password"
+                  required
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">Language</label>
-                  <select className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500">
-                    {languages.map((language) => (
+                  <select
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                    value={form.language}
+                    onChange={(e) => setForm((prev) => ({ ...prev, language: e.target.value }))}
+                  >
+                    {supportedLanguages.map((language) => (
                       <option key={language} value={language}>{language}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">Currency</label>
-                  <select className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500">
-                    {currencies.map((currency) => (
+                  <select
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                    value={form.currency}
+                    onChange={(e) => setForm((prev) => ({ ...prev, currency: e.target.value }))}
+                  >
+                    {supportedCurrencies.map((currency) => (
                       <option key={currency} value={currency}>{currency}</option>
                     ))}
                   </select>
@@ -71,15 +144,23 @@ export default function SignupPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">Country</label>
-                <select className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500">
+                <select
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-green-500"
+                  value={form.country}
+                  onChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))}
+                >
                   <option>United States</option>
                   <option>United Kingdom</option>
                   <option>Canada</option>
                   <option>Australia</option>
                   <option>India</option>
                   <option>United Arab Emirates</option>
+                  <option>Germany</option>
+                  <option>Spain</option>
                 </select>
               </div>
+
+              {error ? <div className="rounded-2xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div> : null}
 
               <div className="rounded-2xl bg-green-50 p-4 text-sm text-green-800">
                 <div className="font-bold">Creator commission</div>

@@ -1,27 +1,28 @@
 # Norcal
 
-Norcal is a modern car marketplace MVP for buying and selling vehicles online. It includes:
+Norcal is a functional MVP marketplace for buying and selling vehicles online.
 
-- user account creation and login
-- seller and buyer profile pages
-- car marketplace browsing
-- messaging and profile links
-- dashboard analytics and privacy settings
-- multi-language and multi-currency account setup
-- creator revenue model with a 5% platform commission
-- Pro plan upgrade section
+Features included:
+- user sign up and login
+- account settings and privacy controls
+- marketplace listings and filters
+- seller profile pages
+- secure-style messaging flow
+- dashboard overview for sellers and buyers
+- language and currency preferences
+- creator commission and Pro upgrade UI
+- local persistence using browser localStorage
 
-## Getting started
+## Run locally
 
-1. Install dependencies:
-   `npm install`
-2. Run the app:
-   `npm run dev`
-3. Open http://localhost:3000
+1. `npm install`
+2. `npm run dev`
+3. Open `http://localhost:3000`
 
 ## Stack
 
 - Next.js
 - React
-- Tailwind CSS
 - TypeScript
+- Tailwind CSS
+

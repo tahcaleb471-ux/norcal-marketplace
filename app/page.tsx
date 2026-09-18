@@ -1,41 +1,16 @@
 import Link from 'next/link';
-import { featuredCars, languages, currencies, profiles, marketplaceStats } from '@/lib/data';
+import { defaultCars, featuredCars, supportedLanguages, supportedCurrencies, defaultUsers } from '@/lib/norcal-data';
 
 export default function HomePage() {
+  const featured = featuredCars(defaultCars);
+  const stats = [
+    { value: '30k+', label: 'Active buyers' },
+    { value: '12k+', label: 'Cars sold' },
+    { value: '99.4%', label: 'Satisfaction' }
+  ];
+
   return (
     <main className="min-h-screen text-slate-900">
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-lg font-bold text-white flex items-center justify-center shadow-lg shadow-emerald-200">
-              N
-            </div>
-            <div>
-              <div className="text-xl font-extrabold">Norcal</div>
-            </div>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <Link href="#featured">Featured</Link>
-            <Link href="#how-it-works">How it works</Link>
-            <Link href="#dashboard">Dashboard</Link>
-            <Link href="#plans">Plans</Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link href="/listings" className="hidden sm:inline-flex rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold hover:border-slate-300">
-              Browse cars
-            </Link>
-            <Link href="/login" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-              Log in
-            </Link>
-            <Link href="/signup" className="rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">
-              Create account
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <section className="max-w-7xl mx-auto px-4 pb-16 pt-10 md:pt-20">
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
           <div>
@@ -46,7 +21,7 @@ export default function HomePage() {
               Buy, sell, and <span className="text-gradient">trade cars</span> with confidence.
             </h1>
             <p className="mt-6 max-w-xl text-lg text-slate-600">
-              Norcal is a global car marketplace where buyers discover great deals and sellers reach new customers with secure messaging, verified profiles, and flexible pricing.
+              Norcal is a global car marketplace where buyers discover great deals and sellers reach new customers with secure messaging, verified profiles, multilingual experiences, and premium upgrades.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/signup" className="rounded-full bg-green-600 px-6 py-3 text-base font-bold text-white hover:bg-green-500">
@@ -57,7 +32,7 @@ export default function HomePage() {
               </Link>
             </div>
             <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
-              {marketplaceStats.map((stat) => (
+              {stats.map((stat) => (
                 <div key={stat.label} className="card rounded-2xl p-4">
                   <div className="text-2xl font-black text-slate-900">{stat.value}</div>
                   <div className="mt-1 text-xs text-slate-500">{stat.label}</div>
@@ -98,7 +73,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {featuredCars.map((car) => (
+          {featured.map((car) => (
             <article key={car.id} className="card overflow-hidden rounded-3xl">
               <img src={car.image} alt={car.name} className="h-52 w-full object-cover" />
               <div className="p-5">
@@ -137,9 +112,9 @@ export default function HomePage() {
           </div>
           <div className="mt-10 grid md:grid-cols-3 gap-6">
             {[
-              ['1. Create account', 'Choose your language and currency, set your country preference, and build your profile.'],
-              ['2. List or discover', 'Post cars for sale or browse curated recommendations from trusted sellers around the world.'],
-              ['3. Buy securely', 'Message sellers, compare offers, and finalize purchases with transparent tracking and payout flows.']
+              ['1. Create account', 'Choose your language, country, and currency preference to personalize your marketplace experience.'],
+              ['2. List or discover', 'Post cars for sale or browse curated recommendations from trusted sellers across the globe.'],
+              ['3. Buy securely', 'Message sellers, compare offers, and finalize purchases with transparent communication and tracking.']
             ].map(([title, text], index) => (
               <div key={title} className="rounded-3xl border border-slate-700 bg-slate-800 p-6">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-xl font-black text-white">
@@ -230,8 +205,12 @@ export default function HomePage() {
       </section>
 
       <section className="max-w-7xl mx-auto px-4 pb-20">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-black">Verified seller profiles</h2>
+          <Link href="/signup" className="text-sm font-bold text-green-700">Join as a seller</Link>
+        </div>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {profiles.slice(0, 4).map((profile) => (
+          {defaultUsers.slice(0, 4).map((profile) => (
             <Link key={profile.id} href={`/profile/${profile.id}`} className="card rounded-3xl p-5 hover:-translate-y-1 transition-transform">
               <div className="flex items-center gap-4">
                 <img src={profile.avatar} alt={profile.name} className="h-14 w-14 rounded-full object-cover ring-2 ring-green-100" />
@@ -246,18 +225,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-slate-600">
-          <div className="font-bold text-slate-900">Norcal</div>
-          <div className="flex flex-wrap gap-5">
-            <span>Global marketplace</span>
-            <span>All languages</span>
-            <span>All currencies</span>
-            <span>Secure messaging</span>
+      <section className="max-w-7xl mx-auto px-4 pb-20">
+        <div className="card rounded-[32px] p-8 md:p-10">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <div className="uppercase tracking-[0.12em] text-xs font-bold text-green-700">Global availability</div>
+              <h2 className="mt-2 text-3xl font-black">All languages and currencies in one marketplace</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
+              <div className="rounded-2xl bg-slate-50 p-4"><div className="font-bold text-slate-900">Languages</div><div className="mt-2">{supportedLanguages.slice(0, 5).join(', ')}</div></div>
+              <div className="rounded-2xl bg-slate-50 p-4"><div className="font-bold text-slate-900">Currencies</div><div className="mt-2">{supportedCurrencies.slice(0, 5).join(', ')}</div></div>
+            </div>
           </div>
-          <div className="text-slate-500">© 2026 Norcal</div>
         </div>
-      </footer>
+      </section>
     </main>
   );
 }

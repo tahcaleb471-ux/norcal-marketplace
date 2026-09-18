@@ -1,15 +1,18 @@
 import type { Metadata } from 'next';
+import AppShell from '@/components/app-shell';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Norcal | Buy and Sell Cars',
-  description: 'Norcal is the smart car marketplace for buying, selling, messaging, and upgrading your dealership presence.'
+  description: 'A full-featured car marketplace for buying, selling, messaging, dashboard tracking, and premium subscriptions.'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

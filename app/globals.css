@@ -1,48 +1,96 @@
+'use client';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { getCurrentUser, logoutUser, type User } from '@/lib/norcal-data';
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --muted: #475569;
-  --card: #ffffff;
-  --brand: #16a34a;
-  --brand-soft: #dcfce7;
-}
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
 
-html {
-  scroll-behavior: smooth;
-}
+  useEffect(() => {
+    setUser(getCurrentUser());
+  }, [pathname]);
 
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  color: var(--foreground);
-}
+  const navLinks = useMemo(() => [
+    { href: '/', label: 'Home' },
+    { href: '/listings', label: 'Marketplace' },
+    { href: '/messages', label: 'Messages' },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/account', label: 'Account' }
+  ], []);
 
-a {
-  text-decoration: none;
-}
+  const handleLogout = () => {
+    logoutUser();
+    setUser(null);
+    router.push('/');
+  };
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
 
-.card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
-}
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
 
-.text-gradient {
-  background: linear-gradient(90deg, #0f172a 0%, #16a34a 50%, #0ea5e9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-lg font-bold text-white flex items-center justify-center shadow-lg shadow-emerald-200">
+              N
+            </div>
+            <div className="text-xl font-extrabold text-slate-900">Norcal</div>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href} className={pathname === link.href ? 'text-slate-900 font-bold' : ''}>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <Link href="/dashboard" className="hidden sm:inline-flex rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">
+                  {user.name.split(' ')[0]}
+                </Link>
+                <button onClick={handleLogout} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                  Log in
+                </Link>
+                <Link href="/signup" className="rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">
+                  Create account
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main>{children}</main>
+
+      <footer className="border-t border-slate-200 bg-white/80">
+        <div className="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-slate-600">
+          <div className="font-bold text-slate-900">Norcal</div>
+          <div className="flex flex-wrap gap-5">
+            <span>Global marketplace</span>
+            <span>All languages</span>
+            <span>All currencies</span>
+            <span>Secure messaging</span>
+          </div>
+          <div className="text-slate-500">© 2026 Norcal</div>
+        </div>
+      </footer>
+    </div>
+  );
 }
