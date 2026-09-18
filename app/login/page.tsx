@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, loginUser } from '@/lib/norcal-data';
+import { getCurrentUser } from '@/lib/norcal-data';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,10 +15,21 @@ export default function LoginPage() {
     if (getCurrentUser()) router.push('/dashboard');
   }, [router]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      loginUser(email, password);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid login');
+      }
+
+      localStorage.setItem('norcal_current_user', JSON.stringify(data.user));
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Invalid login');

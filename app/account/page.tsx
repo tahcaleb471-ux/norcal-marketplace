@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getCurrentUser, getUsers, saveUserProfile, type User } from '@/lib/norcal-data';
+import { useEffect, useState } from 'react';
+import { getCurrentUser } from '@/lib/norcal-data';
 
 export default function AccountPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -29,9 +29,9 @@ export default function AccountPage() {
     });
   }, []);
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     if (!user) return;
-    const updatedUser = saveUserProfile({
+    const updatedUser = {
       ...user,
       name: form.name,
       email: form.email,
@@ -39,8 +39,23 @@ export default function AccountPage() {
       currency: form.currency,
       country: form.country,
       bio: form.bio
-    });
+    };
+    localStorage.setItem('norcal_current_user', JSON.stringify(updatedUser));
     setUser(updatedUser);
+  };
+
+  const handleUpgrade = async () => {
+    if (!user) return;
+    const response = await fetch('/api/payments/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 29, userId: user.id, currency: 'usd' })
+    });
+    const data = await response.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    }
   };
 
   if (!user) {
@@ -114,7 +129,7 @@ export default function AccountPage() {
               <div className="text-xs uppercase tracking-[0.12em] text-slate-300">Upgrade</div>
               <div className="mt-2 text-2xl font-black">Norcal Pro</div>
             </div>
-            <button className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white">Upgrade</button>
+            <button onClick={handleUpgrade} className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-bold text-white">Upgrade</button>
           </div>
         </div>
 

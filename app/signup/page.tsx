@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUser, getCurrentUser, supportedCurrencies, supportedLanguages } from '@/lib/norcal-data';
+import { getCurrentUser, supportedCurrencies, supportedLanguages } from '@/lib/norcal-data';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,18 +22,24 @@ export default function SignupPage() {
     if (getCurrentUser()) router.push('/dashboard');
   }, [router]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      createUser({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-        language: form.language,
-        currency: form.currency,
-        country: form.country,
-        role: form.role as 'buyer' | 'seller'
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to create account');
+      }
+
+      localStorage.setItem('norcal_current_user', JSON.stringify(data.user));
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to create account');
